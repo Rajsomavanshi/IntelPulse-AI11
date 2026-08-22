@@ -14,6 +14,7 @@ export interface ToolCall {
   query: string;
   resultCount: number;
   status: ToolCallStatus;
+  selected: boolean;
   timestamp?: string;
   /** @nullable */
   source?: string | null;

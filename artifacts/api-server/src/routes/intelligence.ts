@@ -22,6 +22,8 @@ type Finding = {
   source: string;
   sourceType: string;
   confidence: "high" | "medium" | "low";
+  confidenceScore: number;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   evidenceCount: number;
 };
 
@@ -31,10 +33,18 @@ type ToolCall = {
   reason: string;
   query: string;
   resultCount: number;
-  status: "completed" | "unavailable" | "empty";
+  status: "not_selected" | "running" | "completed" | "unavailable" | "empty";
+  selected: boolean;
   timestamp: string;
   source: string | null;
   error: string | null;
+};
+
+type AgentPlan = {
+  objective: string;
+  subtasks: string[];
+  selectedTools: string[];
+  reasoningSummary: string[];
 };
 
 const router: IRouter = Router();
@@ -118,6 +128,7 @@ function makeFinding(
 ): Finding {
   const impact = score(title, category, input);
   const classification = classify(title, company);
+  const severity = impact >= 88 ? "CRITICAL" : impact >= 76 ? "HIGH" : impact >= 62 ? "MEDIUM" : "LOW";
   return {
     id: `${category}-${Math.random().toString(36).slice(2, 9)}`,
     category,
@@ -125,6 +136,7 @@ function makeFinding(
     company: company || "Industry",
     date: safeDate(date),
     impact,
+    severity,
     classification,
     whyItMatters:
       classification === "threat"
@@ -141,8 +153,45 @@ function makeFinding(
     source,
     sourceType,
     confidence: evidenceCount > 1 ? "high" : "medium",
+    confidenceScore: evidenceCount > 1 ? 91 : 72,
     evidenceCount,
   };
+}
+
+function selectTools(input: Input) {
+  const text = `${input.technology} ${input.company} ${input.competitors.join(" ")}`.toLowerCase();
+  const isNews = /\b(news|announcement|announcements|launch|press|market|activity)\b/.test(text);
+  const isResearch = /\b(research|paper|papers|scientific|architecture|trend|technology)\b/.test(text);
+  const isPatent = /\b(patent|filing|inventor|intellectual property|ip)\b/.test(text);
+  const isGithub = /\b(github|developer|developers|repository|repo|open source|contributor|code)\b/.test(text);
+  const broad = /\b(analy[sz]e|competitive|position|landscape|monitor|comprehensive|compare)\b/.test(text);
+  const selected = {
+    news: isNews || broad,
+    research: isResearch || broad,
+    patent: isPatent || broad,
+    github: isGithub || broad && /\b(developer|ecosystem|platform|software)\b/.test(text),
+  };
+  if (!Object.values(selected).some(Boolean)) selected.research = true;
+  const reasoningSummary = [
+    selected.news ? "News is relevant for recent announcements, market movement, and competitor activity." : "News is not required because the question does not emphasize current market events.",
+    selected.research ? "Research is relevant for scientific direction and technology momentum." : "Research is not required for this focused investigation.",
+    selected.patent ? "Patent intelligence is relevant for durable technology investment and IP intent." : "Patent intelligence is not required because IP activity was not requested.",
+    selected.github ? "GitHub is relevant for public developer adoption and software ecosystem activity." : "GitHub is not required because developer activity was not requested.",
+  ];
+  return {
+    selected,
+    selectedTools: Object.entries(selected).filter(([, value]) => value).map(([key]) => key),
+    reasoningSummary,
+    subtasks: [
+      "Collect evidence from the selected external sources",
+      "Cross-check entities, recency, and source coverage",
+      "Prioritize threats, opportunities, and next actions",
+    ],
+  };
+}
+
+function unselectedToolCall(id: string, name: string, reason: string): ToolCall {
+  return { id, name, reason, query: "Not called for this objective", resultCount: 0, status: "not_selected", selected: false, timestamp: new Date().toISOString(), source: null, error: null };
 }
 
 async function researchTool(input: Input): Promise<{ findings: Finding[]; call: ToolCall }> {
@@ -168,10 +217,10 @@ async function researchTool(input: Input): Promise<{ findings: Finding[]; call: 
     });
     return {
       findings,
-      call: { id: "research-search", name: "Research Search", reason: "The technology area implies a need to detect new scientific work and methods.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", timestamp, source: "Crossref", error: null },
+      call: { id: "research-search", name: "Research Search", reason: "The technology area implies a need to detect new scientific work and methods.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", selected: true, timestamp, source: "Crossref", error: null },
     };
   } catch (error) {
-    return { findings: [], call: { id: "research-search", name: "Research Search", reason: "The technology area implies a need to detect new scientific work and methods.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", timestamp, source: "Crossref", error: error instanceof Error ? error.message : "Search unavailable" } };
+    return { findings: [], call: { id: "research-search", name: "Research Search", reason: "The technology area implies a need to detect new scientific work and methods.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", selected: true, timestamp, source: "Crossref", error: error instanceof Error ? error.message : "Search unavailable" } };
   }
 }
 
@@ -187,10 +236,10 @@ async function newsTool(input: Input): Promise<{ findings: Finding[]; call: Tool
     );
     return {
       findings,
-      call: { id: "news-search", name: "News & Industry Search", reason: "Competitor names and a monitoring period require current market and announcement signals.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", timestamp, source: "GDELT", error: null },
+      call: { id: "news-search", name: "News & Industry Search", reason: "Competitor names and a monitoring period require current market and announcement signals.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", selected: true, timestamp, source: "GDELT", error: null },
     };
   } catch (error) {
-    return { findings: [], call: { id: "news-search", name: "News & Industry Search", reason: "Competitor names and a monitoring period require current market and announcement signals.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", timestamp, source: "GDELT", error: error instanceof Error ? error.message : "Search unavailable" } };
+    return { findings: [], call: { id: "news-search", name: "News & Industry Search", reason: "Competitor names and a monitoring period require current market and announcement signals.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", selected: true, timestamp, source: "GDELT", error: error instanceof Error ? error.message : "Search unavailable" } };
   }
 }
 
@@ -208,10 +257,29 @@ async function patentTool(input: Input): Promise<{ findings: Finding[]; call: To
     });
     return {
       findings,
-      call: { id: "patent-search", name: "Patent Search", reason: "The investigation covers technology positioning, so filing activity can reveal durable competitive intent.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", timestamp, source: "PatentsView", error: null },
+      call: { id: "patent-search", name: "Patent Search", reason: "The investigation covers technology positioning, so filing activity can reveal durable competitive intent.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", selected: true, timestamp, source: "PatentsView", error: null },
     };
   } catch (error) {
-    return { findings: [], call: { id: "patent-search", name: "Patent Search", reason: "The investigation covers technology positioning, so filing activity can reveal durable competitive intent.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", timestamp, source: "PatentsView", error: error instanceof Error ? error.message : "Search unavailable" } };
+    return { findings: [], call: { id: "patent-search", name: "Patent Search", reason: "The investigation covers technology positioning, so filing activity can reveal durable competitive intent.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", selected: true, timestamp, source: "PatentsView", error: error instanceof Error ? error.message : "Search unavailable" } };
+  }
+}
+
+async function githubTool(input: Input): Promise<{ findings: Finding[]; call: ToolCall }> {
+  const query = encodeURIComponent(`${input.technology} ${input.company}`);
+  const url = `https://api.github.com/search/repositories?q=${query}&sort=stars&order=desc&per_page=5`;
+  const timestamp = new Date().toISOString();
+  try {
+    const data = await fetchJson(url);
+    const repos = Array.isArray(data.items) ? data.items as Array<Record<string, unknown>> : [];
+    const findings = repos.slice(0, 5).map((repo) =>
+      makeFinding(input, "news", `Developer signal: ${String(repo.full_name ?? "public repository")} (${String(repo.stargazers_count ?? 0)} stars)`, String(repo.owner && typeof repo.owner === "object" ? (repo.owner as Record<string, unknown>).login ?? "Open source" : "Open source"), String(repo.updated_at ?? ""), safeUrl(repo.html_url, "https://github.com/"), "GitHub"),
+    );
+    return {
+      findings,
+      call: { id: "github-search", name: "GitHub Developer Intelligence", reason: "The investigation calls for public developer ecosystem activity and repository momentum.", query: decodeURIComponent(query), resultCount: findings.length, status: findings.length ? "completed" : "empty", selected: true, timestamp, source: "GitHub", error: null },
+    };
+  } catch (error) {
+    return { findings: [], call: { id: "github-search", name: "GitHub Developer Intelligence", reason: "The investigation calls for public developer ecosystem activity and repository momentum.", query: decodeURIComponent(query), resultCount: 0, status: "unavailable", selected: true, timestamp, source: "GitHub", error: error instanceof Error ? error.message : "Search unavailable" } };
   }
 }
 
@@ -224,10 +292,11 @@ function demoFindings(input: Input): Finding[] {
   ];
 }
 
-function report(input: Input, findings: Finding[], toolCalls: ToolCall[], mode: "live" | "demo") {
+function report(input: Input, findings: Finding[], toolCalls: ToolCall[], mode: "live" | "demo", plan: AgentPlan) {
   const sorted = [...findings].sort((a, b) => b.impact - a.impact);
   const threats = sorted.filter((finding) => finding.classification === "threat").length;
   const opportunities = sorted.filter((finding) => finding.classification === "opportunity").length;
+  const overall = Math.min(99, Math.max(38, Math.round(sorted.reduce((sum, finding) => sum + finding.impact, 0) / Math.max(sorted.length, 1))));
   const trendLabels = [...new Set(sorted.map((finding) => finding.category === "patent" ? "Patent momentum" : finding.category === "research" ? "Research velocity" : "Competitor movement"))];
   return {
     runId: `run-${Date.now().toString(36)}`,
@@ -243,6 +312,16 @@ function report(input: Input, findings: Finding[], toolCalls: ToolCall[], mode: 
       { priority: "watch", title: "Keep the evidence trail warm", detail: "Schedule another scan and require a second source before making an irreversible decision.", owner: "Research ops" },
     ],
     toolCalls,
+    plan,
+    intelligenceScore: {
+      overall,
+      marketMomentum: Math.min(99, overall + 2),
+      researchMomentum: Math.min(99, overall + (sorted.some((finding) => finding.category === "research") ? 7 : -4)),
+      patentActivity: Math.min(99, overall + (sorted.some((finding) => finding.category === "patent") ? 5 : -6)),
+      developerEcosystem: Math.min(99, overall + (toolCalls.some((call) => call.id === "github-search") ? 4 : -8)),
+      threatLevel: threats > 1 ? "HIGH" : threats === 1 ? "MEDIUM" : "LOW",
+      opportunityLevel: opportunities > 1 ? "HIGH" : opportunities === 1 ? "MEDIUM" : "LOW",
+    },
     metrics: { sources: new Set(toolCalls.filter((call) => call.status === "completed").map((call) => call.source)).size, verified: sorted.filter((finding) => finding.evidenceCount > 1).length, competitors: input.competitors.length, opportunityCount: opportunities, threatCount: threats },
   };
 }
@@ -251,17 +330,25 @@ router.post("/intelligence", async (req: Request, res) => {
   const parsed = RunIntelligenceBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Enter a company, technology area, and valid monitoring period." });
   const input = parsed.data as Input;
-  if (input.demoMode) return res.json(RunIntelligenceResponse.parse(report(input, demoFindings(input), [{ id: "demo-router", name: "Demo Evidence", reason: "Demo mode was selected, so no external calls were made.", query: queryText(input), resultCount: 3, status: "completed", timestamp: new Date().toISOString(), source: "DEMO DATA", error: null }], "demo")));
+  const plan = selectTools(input);
+  const toolPlan = [
+    ["news", "News & Industry Search", "News is not required for this objective."],
+    ["research", "Research Search", "Research is not required for this objective."],
+    ["patent", "Patent Search", "Patent intelligence is not required for this objective."],
+    ["github", "GitHub Developer Intelligence", "GitHub is not required for this objective."],
+  ] as const;
+  if (input.demoMode) return res.json(RunIntelligenceResponse.parse(report(input, demoFindings(input), [{ id: "demo-router", name: "Demo Evidence", reason: "Demo mode was selected, so no external calls were made.", query: queryText(input), resultCount: 3, status: "completed", selected: true, timestamp: new Date().toISOString(), source: "DEMO DATA", error: null }, ...toolPlan.filter(([id]) => !plan.selected[id as keyof typeof plan.selected]).map(([id, name, reason]) => unselectedToolCall(id, name, reason))], "demo", plan)));
 
-  const lower = `${input.technology} ${req.body?.question ?? ""}`.toLowerCase();
   const calls: Array<Promise<{ findings: Finding[]; call: ToolCall }>> = [];
-  if (!/\b(patent|filing|inventor)\b/.test(lower) || /\b(broad|all|competitive|monitor)\b/.test(lower)) calls.push(researchTool(input), newsTool(input));
-  if (!/\b(news|announcement|press)\b/.test(lower) || /\b(broad|all|competitive|monitor|patent)\b/.test(lower)) calls.push(patentTool(input));
+  if (plan.selected.research) calls.push(researchTool(input));
+  if (plan.selected.news) calls.push(newsTool(input));
+  if (plan.selected.patent) calls.push(patentTool(input));
+  if (plan.selected.github) calls.push(githubTool(input));
   const results = await Promise.all(calls);
   const liveFindings = results.flatMap((result) => result.findings);
-  const toolCalls = results.map((result) => result.call);
-  if (!liveFindings.length) return res.json(RunIntelligenceResponse.parse(report(input, demoFindings(input), [...toolCalls, { id: "demo-fallback", name: "Demo Fallback", reason: "Live sources returned no usable evidence, so the report is simulated for demonstration.", query: queryText(input), resultCount: 3, status: "completed", timestamp: new Date().toISOString(), source: "DEMO DATA", error: null }], "demo")));
-  return res.json(RunIntelligenceResponse.parse(report(input, liveFindings, toolCalls, "live")));
+  const toolCalls = [...results.map((result) => result.call), ...toolPlan.filter(([id]) => !plan.selected[id as keyof typeof plan.selected]).map(([id, name, reason]) => unselectedToolCall(id, name, reason))];
+  if (!liveFindings.length) return res.json(RunIntelligenceResponse.parse(report(input, demoFindings(input), [...toolCalls, { id: "demo-fallback", name: "Demo Fallback", reason: "Live sources returned no usable evidence, so the report is simulated for demonstration.", query: queryText(input), resultCount: 3, status: "completed", selected: true, timestamp: new Date().toISOString(), source: "DEMO DATA", error: null }], "demo", plan)));
+  return res.json(RunIntelligenceResponse.parse(report(input, liveFindings, toolCalls, "live", plan)));
 });
 
 export default router;

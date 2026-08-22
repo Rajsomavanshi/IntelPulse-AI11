@@ -5,8 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AgentPlan } from './agentPlan';
 import type { Finding } from './finding';
 import type { IntelligenceInput } from './intelligenceInput';
+import type { IntelligenceReportIntelligenceScore } from './intelligenceReportIntelligenceScore';
 import type { IntelligenceReportMetrics } from './intelligenceReportMetrics';
 import type { IntelligenceReportMode } from './intelligenceReportMode';
 import type { Recommendation } from './recommendation';
@@ -23,5 +25,7 @@ export interface IntelligenceReport {
   trends: Trend[];
   recommendations: Recommendation[];
   toolCalls: ToolCall[];
+  plan: AgentPlan;
+  intelligenceScore: IntelligenceReportIntelligenceScore;
   metrics: IntelligenceReportMetrics;
 }

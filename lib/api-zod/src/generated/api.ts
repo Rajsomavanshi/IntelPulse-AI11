@@ -75,12 +75,14 @@ export const RunIntelligenceResponse = zod.object({
   "company": zod.string(),
   "date": zod.string(),
   "impact": zod.number(),
+  "severity": zod.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   "classification": zod.enum(['opportunity', 'threat', 'neutral']),
   "whyItMatters": zod.string(),
   "action": zod.string(),
   "source": zod.string(),
   "sourceType": zod.string().optional(),
   "confidence": zod.enum(['high', 'medium', 'low']),
+  "confidenceScore": zod.number().optional(),
   "evidenceCount": zod.number().optional()
 })),
   "findings": zod.array(zod.object({
@@ -90,12 +92,14 @@ export const RunIntelligenceResponse = zod.object({
   "company": zod.string(),
   "date": zod.string(),
   "impact": zod.number(),
+  "severity": zod.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   "classification": zod.enum(['opportunity', 'threat', 'neutral']),
   "whyItMatters": zod.string(),
   "action": zod.string(),
   "source": zod.string(),
   "sourceType": zod.string().optional(),
   "confidence": zod.enum(['high', 'medium', 'low']),
+  "confidenceScore": zod.number().optional(),
   "evidenceCount": zod.number().optional()
 })),
   "trends": zod.array(zod.object({
@@ -116,11 +120,27 @@ export const RunIntelligenceResponse = zod.object({
   "reason": zod.string(),
   "query": zod.string(),
   "resultCount": zod.number(),
-  "status": zod.enum(['completed', 'unavailable', 'empty']),
+  "status": zod.enum(['not_selected', 'running', 'completed', 'unavailable', 'empty']),
+  "selected": zod.boolean(),
   "timestamp": zod.string().optional(),
   "source": zod.string().nullish(),
   "error": zod.string().nullish()
 })),
+  "plan": zod.object({
+  "objective": zod.string(),
+  "subtasks": zod.array(zod.string()),
+  "selectedTools": zod.array(zod.string()),
+  "reasoningSummary": zod.array(zod.string())
+}),
+  "intelligenceScore": zod.object({
+  "overall": zod.number(),
+  "marketMomentum": zod.number(),
+  "researchMomentum": zod.number(),
+  "patentActivity": zod.number(),
+  "developerEcosystem": zod.number(),
+  "threatLevel": zod.string(),
+  "opportunityLevel": zod.string()
+}),
   "metrics": zod.object({
   "sources": zod.number(),
   "verified": zod.number(),

@@ -10,6 +10,8 @@ export type ToolCallStatus = typeof ToolCallStatus[keyof typeof ToolCallStatus];
 
 
 export const ToolCallStatus = {
+  not_selected: 'not_selected',
+  running: 'running',
   completed: 'completed',
   unavailable: 'unavailable',
   empty: 'empty',

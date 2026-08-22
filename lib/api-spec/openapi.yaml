@@ -86,14 +86,15 @@ components:
           default: false
     ToolCall:
       type: object
-      required: [id, name, reason, query, resultCount, status]
+      required: [id, name, reason, query, resultCount, status, selected]
       properties:
         id: { type: string }
         name: { type: string }
         reason: { type: string }
         query: { type: string }
         resultCount: { type: number }
-        status: { type: string, enum: [completed, unavailable, empty] }
+        status: { type: string, enum: [not_selected, running, completed, unavailable, empty] }
+        selected: { type: boolean }
         timestamp: { type: string }
         source: { type: ["string", "null"] }
         error: { type: ["string", "null"] }
@@ -107,12 +108,14 @@ components:
         company: { type: string }
         date: { type: string }
         impact: { type: number }
+        severity: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
         classification: { type: string, enum: [opportunity, threat, neutral] }
         whyItMatters: { type: string }
         action: { type: string }
         source: { type: string }
         sourceType: { type: string }
         confidence: { type: string, enum: [high, medium, low] }
+        confidenceScore: { type: number }
         evidenceCount: { type: number }
     Trend:
       type: object
@@ -130,9 +133,23 @@ components:
         title: { type: string }
         detail: { type: string }
         owner: { type: string }
+    AgentPlan:
+      type: object
+      required: [objective, subtasks, selectedTools, reasoningSummary]
+      properties:
+        objective: { type: string }
+        subtasks:
+          type: array
+          items: { type: string }
+        selectedTools:
+          type: array
+          items: { type: string }
+        reasoningSummary:
+          type: array
+          items: { type: string }
     IntelligenceReport:
       type: object
-      required: [runId, mode, input, executiveSummary, criticalAlerts, findings, trends, recommendations, toolCalls, metrics]
+      required: [runId, mode, input, executiveSummary, criticalAlerts, findings, trends, recommendations, toolCalls, metrics, plan, intelligenceScore]
       properties:
         runId: { type: string }
         mode: { type: string, enum: [live, demo] }
@@ -154,6 +171,19 @@ components:
         toolCalls:
           type: array
           items: { $ref: "#/components/schemas/ToolCall" }
+        plan:
+          $ref: "#/components/schemas/AgentPlan"
+        intelligenceScore:
+          type: object
+          required: [overall, marketMomentum, researchMomentum, patentActivity, developerEcosystem, threatLevel, opportunityLevel]
+          properties:
+            overall: { type: number }
+            marketMomentum: { type: number }
+            researchMomentum: { type: number }
+            patentActivity: { type: number }
+            developerEcosystem: { type: number }
+            threatLevel: { type: string }
+            opportunityLevel: { type: string }
         metrics:
           type: object
           required: [sources, verified, competitors, opportunityCount, threatCount]

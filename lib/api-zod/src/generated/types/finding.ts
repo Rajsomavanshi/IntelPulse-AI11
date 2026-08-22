@@ -8,6 +8,7 @@
 import type { FindingCategory } from './findingCategory';
 import type { FindingClassification } from './findingClassification';
 import type { FindingConfidence } from './findingConfidence';
+import type { FindingSeverity } from './findingSeverity';
 
 export interface Finding {
   id: string;
@@ -16,11 +17,13 @@ export interface Finding {
   company: string;
   date: string;
   impact: number;
+  severity?: FindingSeverity;
   classification: FindingClassification;
   whyItMatters: string;
   action: string;
   source: string;
   sourceType?: string;
   confidence: FindingConfidence;
+  confidenceScore?: number;
   evidenceCount?: number;
 }

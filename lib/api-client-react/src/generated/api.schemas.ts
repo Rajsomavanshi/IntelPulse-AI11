@@ -45,6 +45,8 @@ export type ToolCallStatus = typeof ToolCallStatus[keyof typeof ToolCallStatus];
 
 
 export const ToolCallStatus = {
+  not_selected: 'not_selected',
+  running: 'running',
   completed: 'completed',
   unavailable: 'unavailable',
   empty: 'empty',
@@ -57,6 +59,7 @@ export interface ToolCall {
   query: string;
   resultCount: number;
   status: ToolCallStatus;
+  selected: boolean;
   timestamp?: string;
   /** @nullable */
   source?: string | null;
@@ -71,6 +74,16 @@ export const FindingCategory = {
   research: 'research',
   patent: 'patent',
   news: 'news',
+} as const;
+
+export type FindingSeverity = typeof FindingSeverity[keyof typeof FindingSeverity];
+
+
+export const FindingSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL',
 } as const;
 
 export type FindingClassification = typeof FindingClassification[keyof typeof FindingClassification];
@@ -98,12 +111,14 @@ export interface Finding {
   company: string;
   date: string;
   impact: number;
+  severity?: FindingSeverity;
   classification: FindingClassification;
   whyItMatters: string;
   action: string;
   source: string;
   sourceType?: string;
   confidence: FindingConfidence;
+  confidenceScore?: number;
   evidenceCount?: number;
 }
 
@@ -139,6 +154,13 @@ export interface Recommendation {
   owner: string;
 }
 
+export interface AgentPlan {
+  objective: string;
+  subtasks: string[];
+  selectedTools: string[];
+  reasoningSummary: string[];
+}
+
 export type IntelligenceReportMode = typeof IntelligenceReportMode[keyof typeof IntelligenceReportMode];
 
 
@@ -146,6 +168,16 @@ export const IntelligenceReportMode = {
   live: 'live',
   demo: 'demo',
 } as const;
+
+export type IntelligenceReportIntelligenceScore = {
+  overall: number;
+  marketMomentum: number;
+  researchMomentum: number;
+  patentActivity: number;
+  developerEcosystem: number;
+  threatLevel: string;
+  opportunityLevel: string;
+};
 
 export type IntelligenceReportMetrics = {
   sources: number;
@@ -165,6 +197,8 @@ export interface IntelligenceReport {
   trends: Trend[];
   recommendations: Recommendation[];
   toolCalls: ToolCall[];
+  plan: AgentPlan;
+  intelligenceScore: IntelligenceReportIntelligenceScore;
   metrics: IntelligenceReportMetrics;
 }
 

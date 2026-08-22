@@ -6,14 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './agentPlan';
 export * from './finding';
 export * from './findingCategory';
 export * from './findingClassification';
 export * from './findingConfidence';
+export * from './findingSeverity';
 export * from './healthStatus';
 export * from './intelligenceInput';
 export * from './intelligenceInputPeriod';
 export * from './intelligenceReport';
+export * from './intelligenceReportIntelligenceScore';
 export * from './intelligenceReportMetrics';
 export * from './intelligenceReportMode';
 export * from './recommendation';

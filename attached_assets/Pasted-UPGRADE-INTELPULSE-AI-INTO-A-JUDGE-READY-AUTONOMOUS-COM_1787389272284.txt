@@ -1,0 +1,688 @@
+UPGRADE INTELPULSE AI INTO A JUDGE-READY AUTONOMOUS COMPETITIVE INTELLIGENCE AGENT.
+
+This is a hackathon project. The Tool Calling requirement is extremely important.
+
+Requirement:
+"Integrate at least 2 external tools/APIs relevant to the problem. The agent should dynamically determine when and which tool to use."
+
+Do NOT merely create placeholder functions. Implement a real, demonstrable agentic tool-calling workflow.
+
+==================================================
+1. CORE CONCEPT
+==================================================
+
+Turn IntelPulse AI into an "AI Competitive Intelligence Investigator".
+
+The user gives one strategic question.
+
+Example:
+
+"Analyze NVIDIA's position in AI semiconductors."
+
+The AI agent should:
+
+1. Understand the objective.
+2. Break the objective into investigation tasks.
+3. Decide which tools are necessary.
+4. Call only the relevant tools.
+5. Collect evidence.
+6. Cross-check information where possible.
+7. Identify trends.
+8. Detect threats.
+9. Detect opportunities.
+10. Generate strategic recommendations.
+11. Show the evidence and sources used.
+
+The agent must dynamically select tools.
+
+==================================================
+2. INTEGRATE THESE 4 EXTERNAL TOOLS
+==================================================
+
+Implement these four tools because they provide a strong and easy-to-understand hackathon demonstration.
+
+TOOL 1 — NEWS / WEB INTELLIGENCE
+
+Purpose:
+Find recent competitor announcements, market activity, product launches, partnerships, investments, and industry developments.
+
+Use a reliable news/web search API such as:
+- Tavily Search API
+OR
+- another reliable web/news search API already supported by the project.
+
+Tool name:
+
+search_news_and_web
+
+Inputs:
+- query
+- recency
+- domains (optional)
+
+Output:
+- title
+- source
+- URL
+- publication date
+- short summary
+- relevance score
+
+==================================================
+
+TOOL 2 — RESEARCH INTELLIGENCE
+
+Purpose:
+Find scientific papers and research developments.
+
+Use OpenAlex or Crossref API.
+
+Tool name:
+
+search_research
+
+Inputs:
+- topic
+- author (optional)
+- organization (optional)
+- date range
+
+Output:
+- paper title
+- authors
+- publication date
+- journal/source
+- DOI/URL
+- abstract/summary when available
+- relevance
+
+==================================================
+
+TOOL 3 — PATENT INTELLIGENCE
+
+Purpose:
+Find patent activity related to technologies and competitors.
+
+Use a legitimate public patent API such as PatentsView or another appropriate patent API.
+
+Tool name:
+
+search_patents
+
+Inputs:
+- company
+- technology
+- keywords
+- date range
+
+Output:
+- patent/application title
+- applicant/assignee
+- inventors when available
+- filing/publication date
+- patent URL/identifier
+- short description
+
+==================================================
+
+TOOL 4 — GITHUB / DEVELOPER INTELLIGENCE
+==================================================
+
+Use the GitHub REST API.
+
+Tool name:
+
+analyze_github_activity
+
+Purpose:
+Analyze public development activity around companies, organizations, technologies, and competitors.
+
+Retrieve useful signals such as:
+
+- repositories
+- recent commits
+- releases
+- stars
+- forks
+- contributors
+- repository activity
+- technology topics
+
+Example:
+
+If the user asks about AI infrastructure competitors, the agent can investigate relevant public GitHub activity.
+
+==================================================
+3. DYNAMIC TOOL SELECTION
+==================================================
+
+THIS IS THE MOST IMPORTANT PART.
+
+The agent MUST decide which tools to call.
+
+Do NOT automatically call all four tools for every question.
+
+Create a planner/router.
+
+Example:
+
+Question:
+"Show me recent NVIDIA announcements."
+
+Agent decision:
+
+News tool → REQUIRED
+Research → NOT REQUIRED
+Patent → NOT REQUIRED
+GitHub → NOT REQUIRED
+
+Question:
+"What are the latest AI semiconductor research trends?"
+
+Agent decision:
+
+Research → REQUIRED
+News → OPTIONAL
+Patent → OPTIONAL
+GitHub → NOT REQUIRED
+
+Question:
+"Analyze NVIDIA's competitive position in AI chips."
+
+Agent decision:
+
+News → REQUIRED
+Research → REQUIRED
+Patent → REQUIRED
+GitHub → OPTIONAL
+
+Question:
+"Compare NVIDIA and AMD developer activity."
+
+Agent decision:
+
+GitHub → REQUIRED
+News → OPTIONAL
+Research → OPTIONAL
+Patent → NOT REQUIRED
+
+The UI must visibly show these decisions.
+
+==================================================
+4. CREATE AN AGENT TOOL-ROUTER
+==================================================
+
+Implement a tool router/orchestrator.
+
+Conceptually:
+
+User Question
+      ↓
+Intent Detection
+      ↓
+Investigation Planner
+      ↓
+Tool Selection
+      ↓
+Tool Execution
+      ↓
+Evidence Collection
+      ↓
+Cross-Source Analysis
+      ↓
+Threat/Opportunity Detection
+      ↓
+Recommendations
+      ↓
+Final Intelligence Report
+
+The planner should return something similar to:
+
+{
+  "objective": "...",
+  "subtasks": [
+    "...",
+    "..."
+  ],
+  "selected_tools": [
+    "search_news_and_web",
+    "search_research",
+    "search_patents"
+  ],
+  "reasoning_summary": [
+    "News is required to identify recent competitor activity.",
+    "Research is required to identify emerging technology trends.",
+    "Patent search is required to identify technology investment."
+  ]
+}
+
+Do NOT expose hidden chain-of-thought.
+
+Instead show a concise user-facing explanation such as:
+
+"Selected Patent Intelligence because your question involves competitor technology investment."
+
+==================================================
+5. MAKE THE TOOL CALLING VISIBLE
+==================================================
+
+Create a beautiful "Agent Investigation" interface.
+
+Show:
+
+┌──────────────────────────────────────────┐
+│ 🧠 INTELPULSE INVESTIGATION              │
+├──────────────────────────────────────────┤
+│ Objective                                │
+│ NVIDIA AI Semiconductor Strategy         │
+│                                          │
+│ Agent Plan                               │
+│ ✓ Recent market activity                 │
+│ ✓ Research trends                        │
+│ ✓ Patent activity                        │
+│                                          │
+│ Tools Selected                           │
+│ 📰 News Intelligence       ✓             │
+│ 🔬 Research Intelligence   ✓             │
+│ 📜 Patent Intelligence     ✓             │
+│ 💻 GitHub Intelligence     ○             │
+│                                          │
+│ Evidence Collection                      │
+│ ███████████████░░ 82%                    │
+└──────────────────────────────────────────┘
+
+Each tool should have a status:
+
+○ Not selected
+⏳ Running
+✓ Completed
+⚠ Failed
+
+==================================================
+6. TOOL RESULT CARDS
+==================================================
+
+For each tool call display:
+
+Tool:
+📰 News Intelligence
+
+Reason:
+"Recent competitor activity was requested."
+
+Query:
+"NVIDIA AI semiconductor latest"
+
+Results:
+12 sources found
+
+Then show source cards:
+
+Title
+Source
+Date
+URL
+Summary
+Relevance
+
+Do the same for:
+
+Research
+Patents
+GitHub
+
+==================================================
+7. CROSS-SOURCE INTELLIGENCE
+==================================================
+
+This is where IntelPulse AI should become more impressive.
+
+Do not simply list search results.
+
+Combine information from different tools.
+
+Example:
+
+News:
+NVIDIA announced a new AI platform.
+
+Research:
+Research activity around the relevant architecture is increasing.
+
+Patents:
+NVIDIA has increased patent activity in a related technology.
+
+GitHub:
+Developer activity around related tooling is increasing.
+
+Then generate:
+
+🔥 Emerging Trend
+
+"AI accelerator infrastructure is showing increasing activity across
+commercial announcements, research publications, intellectual property,
+and developer ecosystems."
+
+==================================================
+8. THREAT + OPPORTUNITY ENGINE
+==================================================
+
+Create two highly visible sections:
+
+🚨 COMPETITIVE THREATS
+
+Examples:
+- Competitor patent acceleration
+- New product launches
+- Increasing research activity
+- Developer ecosystem growth
+
+💡 OPPORTUNITIES
+
+Examples:
+- Underdeveloped research areas
+- Technology gaps
+- Partnership opportunities
+- Emerging markets
+- Weak competitor areas
+
+Each finding should have:
+
+Severity:
+LOW / MEDIUM / HIGH / CRITICAL
+
+Confidence:
+0–100%
+
+Evidence:
+Source links supporting the finding.
+
+==================================================
+9. INTELLIGENCE SCORE
+==================================================
+
+Create an overall intelligence score.
+
+Example:
+
+Competitive Intelligence Score
+87 / 100
+
+Break it into:
+
+Market Momentum
+82
+
+Research Momentum
+91
+
+Patent Activity
+88
+
+Developer Ecosystem
+79
+
+Competitive Threat
+HIGH
+
+Opportunity Potential
+HIGH
+
+Make the score explainable using the collected evidence.
+
+Do not fabricate real data.
+
+==================================================
+10. "WHY DID THE AGENT DO THAT?" FEATURE
+==================================================
+
+Add a small button:
+
+"Why this tool?"
+
+When clicked, show:
+
+Patent Intelligence was selected because:
+"The investigation concerns competitor technology investment and
+intellectual property."
+
+News Intelligence was selected because:
+"The investigation requires recent competitor activity."
+
+This makes the autonomous decision-making easy for judges to evaluate.
+
+==================================================
+11. DEMO MODE
+==================================================
+
+The application MUST remain functional if an external API key is missing.
+
+Implement clearly labeled:
+
+DEMO MODE
+
+If an API is unavailable:
+
+- Do not fake that real data was retrieved.
+- Clearly display "Demo Data".
+- Explain which API is required for live results.
+- Keep the agent/tool workflow functional.
+
+For live APIs:
+
+Use environment variables / Replit Secrets.
+
+NEVER hard-code API keys.
+
+NEVER expose API keys in frontend code.
+
+==================================================
+12. DEMO SCENARIOS
+==================================================
+
+Add a "Try Demo Investigation" section with buttons:
+
+[ NVIDIA AI Chips ]
+
+[ AMD vs NVIDIA ]
+
+[ Generative AI Research Trends ]
+
+[ AI Semiconductor Patent Landscape ]
+
+[ Competitor Developer Ecosystem ]
+
+When a judge clicks one, automatically populate the investigation and run the agent.
+
+This makes the project extremely easy to demonstrate.
+
+==================================================
+13. LIVE AGENT ACTIVITY
+==================================================
+
+Add an animated event timeline:
+
+12:01:04
+🧠 Understanding investigation
+
+12:01:05
+📋 Creating investigation plan
+
+12:01:06
+📰 Calling News Intelligence
+
+12:01:08
+🔬 Calling Research Intelligence
+
+12:01:10
+📜 Calling Patent Intelligence
+
+12:01:13
+🔗 Cross-checking evidence
+
+12:01:15
+🚨 Detecting competitive threats
+
+12:01:16
+💡 Identifying opportunities
+
+12:01:17
+✅ Investigation complete
+
+This should make the autonomous workflow obvious during a live presentation.
+
+==================================================
+14. EVIDENCE GRAPH
+==================================================
+
+If practical, add a simple visual relationship graph:
+
+Company
+   |
+   ├── News
+   |
+   ├── Research
+   |
+   ├── Patents
+   |
+   └── GitHub
+
+Clicking a node should show supporting evidence.
+
+If a graph is too complex, create a clean evidence timeline instead.
+
+==================================================
+15. TESTING THE TOOL-CALLING REQUIREMENT
+==================================================
+
+Add tests demonstrating:
+
+TEST 1:
+"Latest NVIDIA announcements"
+
+Expected:
+News tool selected.
+
+TEST 2:
+"Latest research on AI semiconductor architectures"
+
+Expected:
+Research tool selected.
+
+TEST 3:
+"NVIDIA semiconductor patent activity"
+
+Expected:
+Patent tool selected.
+
+TEST 4:
+"Compare NVIDIA and AMD developer ecosystems"
+
+Expected:
+GitHub tool selected.
+
+TEST 5:
+"Comprehensive competitive analysis of NVIDIA AI chips"
+
+Expected:
+Multiple relevant tools selected.
+
+TEST 6:
+"Explain photosynthesis"
+
+Expected:
+Competitive intelligence tools should NOT be unnecessarily called.
+
+==================================================
+16. README UPDATE
+==================================================
+
+Update README.md with a section:
+
+## 🤖 Agentic Tool Calling
+
+Explain:
+
+IntelPulse AI dynamically selects external tools based on the user's
+investigation objective.
+
+List:
+
+1. News/Web Intelligence
+2. Research Intelligence
+3. Patent Intelligence
+4. GitHub Intelligence
+
+Explain why each exists.
+
+Add an architecture diagram using Markdown.
+
+Add example:
+
+User Question
+→ Agent Planner
+→ Tool Selection
+→ External APIs
+→ Evidence
+→ Analysis
+→ Recommendations
+
+Add setup instructions for required API keys.
+
+==================================================
+17. IMPORTANT HACKATHON REQUIREMENT
+==================================================
+
+The implementation must be REAL.
+
+Do not simply create UI cards claiming that tools were called.
+
+The agent must actually call the APIs and use the returned data.
+
+Do not fabricate API responses.
+
+Do not hard-code tool-selection results.
+
+The agent must dynamically select tools based on the user's query.
+
+==================================================
+18. QUALITY REQUIREMENTS
+==================================================
+
+Keep the existing IntelPulse AI functionality.
+
+Do not break the current application.
+
+Make the UI polished and professional.
+
+Use a modern dark intelligence/analytics dashboard style.
+
+Prioritize:
+
+- Clear agent workflow
+- Real tool calls
+- Source evidence
+- Dynamic tool selection
+- Threat detection
+- Opportunity detection
+- Explainability
+- Fast demo experience
+
+After implementation:
+
+1. Run the application.
+2. Test all tools.
+3. Test missing API-key behavior.
+4. Test the demo scenarios.
+5. Fix errors.
+6. Verify the production build.
+7. Update README.
+8. Make the project GitHub-ready.
+
+Finally, give me a concise summary of:
+- Files created/changed
+- APIs integrated
+- How dynamic tool selection works
+- How to test each tool
+- Environment variables required
+- How to demonstrate the project to a hackathon judge
