@@ -1,0 +1,535 @@
+Build a Production-Ready Agentic AI Competitive Intelligence Platform
+
+Build a complete, deployable web application called IntelPulse AI.
+
+1. Problem
+
+Organizations, startups and research institutions need to continuously monitor:
+
+- Scientific research
+- Patents
+- Competitor activity
+- Industry news
+- Technology trends
+
+Manually monitoring these sources is slow and causes important developments to be missed.
+
+Build an autonomous AI agent that turns these fragmented information sources into concise, prioritized and actionable competitive intelligence.
+
+2. Core requirement
+
+This MUST be a real Agentic AI application, not a simple chatbot.
+
+The agent must follow this workflow:
+
+USER GOAL
+→ Understand objective
+→ Create plan
+→ Select appropriate tools
+→ Execute searches
+→ Collect information
+→ Analyze information
+→ Cross-check important claims
+→ Detect trends/threats/opportunities
+→ Prioritize findings
+→ Generate actionable recommendations
+
+The UI should make this agentic workflow visible to the user.
+
+3. Example user request
+
+The user enters:
+
+Company: NVIDIA
+
+Competitors:
+AMD, Intel
+
+Technology:
+AI semiconductor chips
+
+Time period:
+Last 7 days
+
+The agent should autonomously investigate recent developments and return:
+
+1. Executive summary
+2. Important competitor developments
+3. Research developments
+4. Patent developments
+5. Industry news
+6. Emerging trends
+7. Threats
+8. Opportunities
+9. Recommended actions
+10. Sources/evidence
+
+4. Agent architecture
+
+Implement an orchestrator agent with specialized tools/agents:
+
+Research Tool
+
+Search for relevant scientific publications.
+
+Extract:
+
+- Title
+- Authors
+- Publication date
+- Institution
+- Topic
+- Key finding
+- Relevance
+- Source
+
+Patent Tool
+
+Search relevant patent information.
+
+Extract:
+
+- Patent title
+- Applicant/company
+- Date
+- Technology
+- Summary
+- Relevance
+- Source
+
+News Tool
+
+Search recent industry and competitor news.
+
+Extract:
+
+- Headline
+- Company
+- Date
+- Event type
+- Key information
+- Impact
+- Source
+
+Trend Analysis Tool
+
+Analyze collected information and identify:
+
+- Emerging technologies
+- Increasing research activity
+- Competitor movement
+- Market shifts
+- Repeated themes
+
+Intelligence Analyst
+
+Analyze all collected information.
+
+For every significant finding calculate:
+
+- Relevance score
+- Recency score
+- Competitive significance
+- Technology significance
+- Overall impact score
+
+Classify findings:
+
+LOW
+MEDIUM
+HIGH
+CRITICAL
+
+Then determine whether each finding represents:
+
+- Opportunity
+- Threat
+- Neutral development
+
+Finally generate recommended actions.
+
+5. Agent behavior
+
+The agent MUST be capable of multi-step reasoning and tool selection.
+
+Example:
+
+User asks:
+
+"Monitor autonomous driving competitors."
+
+The agent should determine that it needs to:
+
+1. Identify relevant competitors.
+2. Search research publications.
+3. Search patent activity.
+4. Search recent news.
+5. Remove duplicate information.
+6. Compare developments.
+7. Identify significant changes.
+8. Verify important findings.
+9. Score their impact.
+10. Identify opportunities and threats.
+11. Generate recommendations.
+
+Do not hard-code this exact sequence if the agent can intelligently determine which tools are necessary.
+
+6. Verification
+
+Do not blindly trust a single source.
+
+For important findings:
+
+- Prefer reliable sources.
+- Store the source URL.
+- Compare multiple sources where possible.
+- Clearly indicate confidence.
+- Never fabricate citations or sources.
+- If information cannot be verified, say so.
+
+7. Dashboard
+
+Create a professional modern dashboard.
+
+Main page:
+
+IntelPulse AI
+
+Subtitle:
+
+"Autonomous Competitive Intelligence"
+
+Input section:
+
+Company
+Competitors
+Technology / Research Area
+Monitoring Period
+
+Button:
+
+"Run Intelligence"
+
+While the agent works, show a live activity panel:
+
+✓ Understanding objective
+✓ Creating research plan
+✓ Searching research
+✓ Searching patents
+✓ Searching news
+✓ Analyzing competitor activity
+✓ Detecting trends
+✓ Verifying findings
+✓ Generating recommendations
+
+8. Results dashboard
+
+Display:
+
+Executive Summary
+
+A concise summary of the most important developments.
+
+Critical Alerts
+
+Show CRITICAL and HIGH impact developments first.
+
+Each card should contain:
+
+- Event
+- Company
+- Date
+- Impact score
+- Threat/opportunity classification
+- Why it matters
+- Recommended action
+- Evidence/source
+
+Research Intelligence
+
+Show important research developments.
+
+Patent Intelligence
+
+Show important patent developments.
+
+Competitor Activity
+
+Show competitor-specific developments.
+
+Trend Radar
+
+Display emerging technologies and trends.
+
+Opportunities
+
+Show potential opportunities.
+
+Threats
+
+Show potential competitive threats.
+
+Recommended Actions
+
+Give specific business/research actions.
+
+9. Search and filtering
+
+Allow users to filter results by:
+
+- Competitor
+- Date
+- Source type
+- Impact
+- Opportunity/threat
+- Technology
+
+10. Technology stack
+
+Use:
+
+Frontend:
+React or Next.js
+
+Backend:
+Python + FastAPI
+
+Agent:
+OpenAI model
+
+Agent orchestration:
+LangGraph
+
+Data:
+Appropriate APIs/search services
+
+Database:
+Use PostgreSQL or another simple database if persistent monitoring is implemented.
+
+Use environment variables for all API keys.
+
+NEVER expose API keys in frontend code.
+
+11. Important MVP requirement
+
+Prioritize a working end-to-end MVP over unnecessary features.
+
+The minimum working flow must be:
+
+User enters company + competitors + technology
+→ Agent creates plan
+→ Agent uses multiple information tools
+→ Agent analyzes results
+→ Agent scores findings
+→ Agent identifies threats/opportunities
+→ Agent produces recommendations
+→ Dashboard displays evidence and sources.
+
+12. Error handling
+
+The application must gracefully handle:
+
+- Search API failure
+- Empty search results
+- Invalid user input
+- API timeout
+- Rate limits
+- Missing sources
+- Duplicate results
+
+If one tool fails, the agent should continue using available tools whenever possible instead of crashing.
+
+13. Demo mode
+
+Create a DEMO MODE so the application can still be demonstrated if an external API temporarily fails.
+
+Clearly label demo/mock data as DEMO DATA.
+
+Do not pretend demo data is real-time information.
+
+14. Deployment
+
+The application MUST be deployable.
+
+Prepare:
+
+- GitHub-ready repository
+- README
+- .env.example
+- Production configuration
+- Frontend deployment configuration
+- Backend deployment configuration
+
+Make deployment straightforward using platforms such as Vercel for frontend and Render/Railway for backend.
+
+15. README
+
+Include:
+
+- Problem statement
+- Solution
+- Architecture
+- Agent workflow
+- Tools
+- Technology stack
+- Setup instructions
+- Environment variables
+- Local development
+- Deployment instructions
+- Example prompts
+- Limitations
+
+16. Security
+
+Never hard-code API keys.
+
+Validate user input.
+
+Do not expose backend secrets.
+
+Sanitize external content before displaying it.
+
+17. UX requirement
+
+The interface should look like a serious startup/research intelligence product, not a basic chatbot.
+
+Use:
+
+- Clean typography
+- Responsive layout
+- Cards
+- Charts where useful
+- Status indicators
+- Loading states
+- Error states
+- Source links
+- Impact badges
+
+Do not sacrifice functionality for visual effects.
+
+18. Hackathon judging optimization
+
+The implementation must clearly demonstrate:
+
+- Problem understanding
+- Agentic behavior
+- Tool usage
+- Autonomy
+- Adaptability
+- Error handling
+- Innovation
+- Accuracy
+- User experience
+- Deployment
+
+Make the agent workflow visible enough that a judge can immediately understand why this is an Agentic AI system.
+
+19. Final requirement
+
+DO NOT just create a chatbot that summarizes search results.
+
+Create an autonomous intelligence workflow that:
+
+DISCOVERS
+→ ANALYZES
+→ VERIFIES
+→ PRIORITIZES
+→ RECOMMENDS ACTION
+
+Start by creating the project structure and implementing the smallest working end-to-end version. Then test it with the NVIDIA / AMD / Intel AI semiconductor example before adding additional features.
+
+Implement the Tool Calling requirement for IntelPulse AI.
+
+The agent MUST integrate at least 2 external tools/APIs that are directly relevant to competitive intelligence.
+
+Use these tools:
+
+1. Research/News Search API
+   - Search for recent industry news, competitor announcements, technology developments, and research-related information.
+   - The agent should decide when a news/research search is necessary.
+
+2. Patent Search API
+   - Search for relevant patent developments, patent filings, inventors, organizations, and technology areas.
+   - The agent should decide when patent information is relevant to the user's investigation.
+
+Implement these as actual callable tools available to the AI agent.
+
+IMPORTANT:
+The agent must NOT blindly call every tool.
+
+It must dynamically determine:
+- What information the user is requesting.
+- Which tool is relevant.
+- When to call the tool.
+- Whether one tool or multiple tools are required.
+- What parameters/query should be sent to each tool.
+- How to combine the returned information.
+
+Example:
+
+If the user asks:
+"Find recent competitor announcements about NVIDIA"
+
+The agent should primarily use the News/Research Search tool.
+
+If the user asks:
+"Find recent patents related to AI semiconductor chips"
+
+The agent should use the Patent Search tool.
+
+If the user asks:
+"Analyze NVIDIA's recent competitive activity, patents, and technology developments"
+
+The agent should intelligently use BOTH tools and combine their results.
+
+Create a visible Tool Calling section in the UI showing:
+
+User Goal
+↓
+Agent Planning
+↓
+Selected Tool(s)
+↓
+Tool Call
+↓
+Retrieved Evidence
+↓
+Analysis
+↓
+Final Intelligence
+
+For every tool call, display:
+- Tool name
+- Reason for selecting the tool
+- Search/query parameters
+- Result count
+- Source/evidence
+- Timestamp if available
+
+Add proper error handling:
+- API unavailable
+- API timeout
+- Empty results
+- Invalid query
+- Rate limits
+
+If an external API requires a key, use environment variables/Replit Secrets. NEVER hard-code API keys and NEVER expose secrets in the frontend.
+
+Do not fabricate API results.
+
+If an API is unavailable, create a clearly labeled DEMO MODE and make it obvious that the results are simulated. Do not present demo data as real-world evidence.
+
+Add tests demonstrating that:
+1. News-related questions trigger the News/Research tool.
+2. Patent-related questions trigger the Patent tool.
+3. A broad competitive-intelligence question can trigger both tools.
+4. The agent can choose not to call an irrelevant tool.
+
+Make the implementation GitHub-ready and update README.md with:
+- The two external tools/APIs used
+- Why each tool is used
+- How the agent decides which tool to call
+- Example tool-calling workflows
+- API setup instructions
+
+Do not just describe the implementation. Actually implement it, test it, and integrate it into the existing IntelPulse AI application.

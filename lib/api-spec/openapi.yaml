@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: intelligence
+    description: Agentic competitive intelligence operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /intelligence:
+    post:
+      operationId: runIntelligence
+      tags: [intelligence]
+      summary: Run an intelligence investigation
+      description: Plans an investigation, selects relevant evidence tools, analyzes results, and returns prioritized intelligence.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntelligenceInput"
+      responses:
+        "200":
+          description: Intelligence investigation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntelligenceReport"
+        "400":
+          description: Invalid investigation request
+        "500":
+          description: Investigation failed
 components:
   schemas:
     HealthStatus:
@@ -33,4 +58,109 @@ components:
           type: string
       required:
         - status
+    IntelligenceInput:
+      type: object
+      required: [company, competitors, technology, period]
+      properties:
+        company:
+          type: string
+          minLength: 2
+          maxLength: 120
+        competitors:
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 120
+          minItems: 0
+          maxItems: 12
+        technology:
+          type: string
+          minLength: 2
+          maxLength: 240
+        period:
+          type: string
+          enum: [7d, 30d, 90d, 1y]
+        demoMode:
+          type: boolean
+          default: false
+    ToolCall:
+      type: object
+      required: [id, name, reason, query, resultCount, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        reason: { type: string }
+        query: { type: string }
+        resultCount: { type: number }
+        status: { type: string, enum: [completed, unavailable, empty] }
+        timestamp: { type: string }
+        source: { type: ["string", "null"] }
+        error: { type: ["string", "null"] }
+    Finding:
+      type: object
+      required: [id, category, title, company, date, impact, classification, whyItMatters, action, source, confidence]
+      properties:
+        id: { type: string }
+        category: { type: string, enum: [research, patent, news] }
+        title: { type: string }
+        company: { type: string }
+        date: { type: string }
+        impact: { type: number }
+        classification: { type: string, enum: [opportunity, threat, neutral] }
+        whyItMatters: { type: string }
+        action: { type: string }
+        source: { type: string }
+        sourceType: { type: string }
+        confidence: { type: string, enum: [high, medium, low] }
+        evidenceCount: { type: number }
+    Trend:
+      type: object
+      required: [label, value, direction, description]
+      properties:
+        label: { type: string }
+        value: { type: number }
+        direction: { type: string, enum: [up, flat, down] }
+        description: { type: string }
+    Recommendation:
+      type: object
+      required: [priority, title, detail, owner]
+      properties:
+        priority: { type: string, enum: [now, next, watch] }
+        title: { type: string }
+        detail: { type: string }
+        owner: { type: string }
+    IntelligenceReport:
+      type: object
+      required: [runId, mode, input, executiveSummary, criticalAlerts, findings, trends, recommendations, toolCalls, metrics]
+      properties:
+        runId: { type: string }
+        mode: { type: string, enum: [live, demo] }
+        input:
+          $ref: "#/components/schemas/IntelligenceInput"
+        executiveSummary: { type: string }
+        criticalAlerts:
+          type: array
+          items: { $ref: "#/components/schemas/Finding" }
+        findings:
+          type: array
+          items: { $ref: "#/components/schemas/Finding" }
+        trends:
+          type: array
+          items: { $ref: "#/components/schemas/Trend" }
+        recommendations:
+          type: array
+          items: { $ref: "#/components/schemas/Recommendation" }
+        toolCalls:
+          type: array
+          items: { $ref: "#/components/schemas/ToolCall" }
+        metrics:
+          type: object
+          required: [sources, verified, competitors, opportunityCount, threatCount]
+          properties:
+            sources: { type: number }
+            verified: { type: number }
+            competitors: { type: number }
+            opportunityCount: { type: number }
+            threatCount: { type: number }
 
