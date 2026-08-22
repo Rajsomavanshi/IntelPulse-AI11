@@ -2,6 +2,10 @@
 
 Autonomous competitive intelligence for teams monitoring research, patents, competitors, and industry movement.
 
+## Project Name: IntelPulse AI
+
+#Team Member's : Raj Somvanshi, Aditya Kadu, Sanika Chakane, Siddhi Dhorkule, Pankaj Aher
+
 ## What it does
 
 IntelPulse turns a strategic question into an evidence trail:
